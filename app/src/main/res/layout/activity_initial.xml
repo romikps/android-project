@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="0dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="0dp"
+    tools:context="com.romanpr.seekhide.InitialActivity"
+    android:background="#000000">
+
+    <ImageView
+        android:id="@+id/scaryFace"
+        android:src="@drawable/game"
+        android:layout_width="400dp"
+        android:layout_height="250dp"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:text="What is your name?"
+        android:id="@+id/askName"
+        android:textColor="#dace4101"
+        android:textSize="50sp"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/scaryFace"
+        android:layout_alignParentEnd="false"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:gravity="center_horizontal" />
+
+    <EditText
+        android:id="@+id/playersName"
+        android:typeface="normal"
+        android:padding="13dp"
+        android:paddingRight="30dp"
+        android:paddingLeft="30dp"
+        android:textSize="33sp"
+        android:layout_below="@+id/askName"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:editable="true"
+        android:hint="Enter here"
+        android:textColorHint="#dace4101"
+        android:textColor="#dace4101" />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:id="@+id/bloodyHand"
+        android:src="@drawable/bloody_hand"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/playersName"
+        android:layout_marginTop="10dp"
+        android:onClick="changeActivity" />
+
+</RelativeLayout>

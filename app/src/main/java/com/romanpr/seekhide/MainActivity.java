@@ -8,6 +8,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         Firebase.setAndroidContext(this);
         myFirebaseRef = new Firebase("https://seek-n-hide.firebaseio.com/");
+
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // false not to check if provider available
