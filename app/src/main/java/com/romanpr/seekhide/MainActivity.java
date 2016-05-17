@@ -14,12 +14,15 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.firebase.client.Firebase;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
     LocationManager locationManager;
     String provider;
+    Firebase myFirebaseRef;
 
     public void changeActivity(View view) {
 
@@ -34,6 +37,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Firebase.setAndroidContext(this);
+        myFirebaseRef = new Firebase("https://seek-n-hide.firebaseio.com/");
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // false not to check if provider available
@@ -102,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         Log.i("Latitude", lat.toString());
         Log.i("Longitude", lng.toString());
         Log.i("Speed", spd.toString());
+
+        myFirebaseRef.child("location").setValue(lat.toString() + ", " + lng.toString());
 
 
     }
