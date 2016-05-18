@@ -12,34 +12,47 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:id="@+id/textView" />
+        android:id="@+id/welcomeMssg"
+        android:textSize="70sp"
+        android:gravity="center_horizontal"
+        android:text="Welcome!"
+        android:textColor="#dace4101" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Get Location"
         android:id="@+id/button"
-        android:layout_below="@+id/textView"
+        android:layout_below="@+id/welcomeMssg"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="31dp"
-        android:onClick="getLocation" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Find"
-        android:id="@+id/findButton"
-        android:layout_marginTop="33dp"
-        android:layout_below="@+id/button"
-        android:layout_centerHorizontal="true"
-        android:onClick="changeActivity" />
+        android:onClick="getLocation"
+        android:visibility="gone" />
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="350dp"
         android:id="@+id/listView"
         android:layout_alignEnd="@+id/button"
-        android:layout_below="@+id/findButton"
-        android:choiceMode="singleChoice" />
+        android:choiceMode="singleChoice"
+        android:layout_below="@+id/welcomeMssg"
+        android:layout_marginTop="37dp" />
+
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:id="@+id/imageView"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/jocker" />
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/findBttn"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/search"
+        android:visibility="gone" />
 </RelativeLayout>
