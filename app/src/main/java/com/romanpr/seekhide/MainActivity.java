@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         TextView welcomeMssg = (TextView) findViewById(R.id.welcomeMssg);
 
         Typeface typeFace= Typeface.createFromAsset(getAssets(), "fonts/blood_font.ttf");
-        String playersName = getIntent().getStringExtra("playersName");
+        final String playersName = getIntent().getStringExtra("playersName");
         welcomeMssg.setTypeface(typeFace);
 
 
@@ -44,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot player : dataSnapshot.getChildren()) {
-                    Log.i("player", player.getKey());
+                    // Log.i("player", player.getKey());
                     friends.add(player.getKey());
                 }
                 ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this,
@@ -67,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Intent i = new Intent(getApplicationContext(), SecondActivity.class);
                     i.putExtra("hidersName", friends.get(position));
+                    i.putExtra("playersName", playersName);
                     startActivity(i);
                 }
             });

@@ -14,12 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
-
-import java.util.ArrayList;
 
 public class InitialActivity extends AppCompatActivity implements LocationListener {
 
@@ -28,6 +23,7 @@ public class InitialActivity extends AppCompatActivity implements LocationListen
     LocationManager locationManager;
     Location location;
     String provider;
+    String playersName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +49,7 @@ public class InitialActivity extends AppCompatActivity implements LocationListen
 
     public void changeActivity(View view) {
 
-        String playersName = playersNameView.getText().toString();
+        playersName = playersNameView.getText().toString();
 
         if (location == null)
             Log.i("Location", "Not available");
@@ -71,14 +67,18 @@ public class InitialActivity extends AppCompatActivity implements LocationListen
 
     @Override
     protected void onResume() {
+
         super.onResume();
         locationManager.requestLocationUpdates(provider, 3000, 1, this);
     }
 
     @Override
     protected void onPause() {
+
         super.onPause();
         locationManager.removeUpdates(this);
+
+
     }
 
     @Override
@@ -93,6 +93,7 @@ public class InitialActivity extends AppCompatActivity implements LocationListen
         Log.i("Latitude", lat.toString());
         Log.i("Longitude", lng.toString());
         Log.i("Speed", spd.toString());
+
 
     }
 
