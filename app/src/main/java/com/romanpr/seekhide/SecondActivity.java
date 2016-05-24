@@ -9,27 +9,26 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.util.HashMap;
-import java.util.Map;
+public class SecondActivity extends AppCompatActivity {
 
-public class SecondActivity extends AppCompatActivity implements LocationListener {
+    FirebaseDatabase database;
+    DatabaseReference myRef;
 
-    Firebase players;
     LocationManager locationManager;
-    Location location;
-    String provider;
-    String playersName, hidersName;
+    Location mCurrentLocation;
+    LocationListener locationListener;
+    double findLatitude, findLongitude;
+    String playerName, findName;
     TextView distance;
 
     @Override
@@ -37,18 +36,12 @@ public class SecondActivity extends AppCompatActivity implements LocationListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_second);
 
-        Firebase.setAndroidContext(this);
-        players = new Firebase("https://seek-n-hide.firebaseio.com/players/");
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("players");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        // false not to check if provider available
-        provider = locationManager.getBestProvider(new Criteria(), false);
-        location = locationManager.getLastKnownLocation(provider);
+        Intent i = getIntent(); // gets intent that ended us up in this activity, can extract from
+        findName = i.getStringExtra("findName");
+        playerName = i.getStringExtra("playerName");
 
         TextView welcomeText = (TextView) findViewById(R.id.welcomeText);
         Typeface typeFace= Typeface.createFromAsset(getAssets(), "fonts/blood_font.ttf");
@@ -56,24 +49,62 @@ public class SecondActivity extends AppCompatActivity implements LocationListene
 
         distance = (TextView) findViewById(R.id.distance);
 
-        Intent i = getIntent(); // gets intent that ended us up in this activity, can extract from
-        // Log.i("Developer's name", i.getStringExtra("developersName"));
-        hidersName = i.getStringExtra("hidersName");
-        playersName = i.getStringExtra("playersName");
-        welcomeText.setText(playersName + ", you are looking for " + hidersName +
+        welcomeText.setText(playerName + ", you are looking for " + findName +
                             ". But you never know who is looking for ya :-)");
-        // You're looking for Rozerin now, but you never know who is looking for you.
+
+        locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                mCurrentLocation = location;
+                processUser(playerName, mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+            }
+
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+
+            public void onProviderEnabled(String provider) {}
+
+            public void onProviderDisabled(String provider) {}
+        };
+
+        locationManager.requestLocationUpdates(locationManager.getBestProvider(new Criteria(), false),
+                5000, 5, locationListener);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                this.finish();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+    public void getDistance(View view) {
+
+        myRef.child(findName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                findLatitude = Double.valueOf(dataSnapshot.child("latitude").getValue().toString());
+                findLongitude = Double.valueOf(dataSnapshot.child("longitude").getValue().toString());
+
+                if (mCurrentLocation != null) {
+                    Double dist = getDistance(findLatitude, findLongitude,
+                            mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+                    distance.setText(dist.toString().substring(0, dist.toString().indexOf(".")) + " m.");
+                } else {
+                    distance.setText("Location problem.");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void processUser(String name, double latitude, double longitude) {
+        DatabaseReference user = myRef.child(name);
+        user.child("latitude").setValue(latitude);
+        user.child("longitude").setValue(longitude);
+    }
+
+    public void logLocation() {
+        Log.i("Location", String.valueOf(mCurrentLocation.getLatitude())
+                + ", " + String.valueOf(mCurrentLocation.getLongitude()));
     }
 
     public double degToRad(double deg) {
@@ -93,68 +124,4 @@ public class SecondActivity extends AppCompatActivity implements LocationListene
         return d;
     }
 
-    public void getDistance(View view) {
-
-        players.child(hidersName).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String hLat = dataSnapshot.child("latitude").getValue().toString();
-                String hLng = dataSnapshot.child("longitude").getValue().toString();
-                Log.i("Hider's Location", hLat + ", " + hLng);
-
-                Double dist = getDistance(Double.parseDouble(hLat), Double.parseDouble(hLng),
-                                location.getLatitude(), location.getLongitude());
-                distance.setText(dist.toString().substring(0, dist.toString().indexOf(".")) + " m.");
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
-        if (playersName != null && !playersName.isEmpty()) {
-            players.child(playersName).child("latitude").setValue(location.getLatitude());
-            players.child(playersName).child("longitude").setValue(location.getLongitude());
-            this.location = location;
-            // Log.i("New location", this.location.toString());
-        } else {
-            Log.i("Location", "Something's wrong with changing location");
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    @Override
-    protected void onResume() {
-
-        super.onResume();
-        locationManager.requestLocationUpdates(provider, 3000, 1, this);
-    }
-
-    @Override
-    protected void onPause() {
-
-        super.onPause();
-        locationManager.removeUpdates(this);
-
-
-    }
 }

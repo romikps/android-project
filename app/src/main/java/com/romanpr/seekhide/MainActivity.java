@@ -10,77 +10,65 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.Firebase;
-import com.firebase.client.FirebaseError;
-import com.firebase.client.ValueEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    Firebase players;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+    String playerName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Firebase.setAndroidContext(this);
-        players = new Firebase("https://seek-n-hide.firebaseio.com/players/");
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("players");
 
         TextView welcomeMssg = (TextView) findViewById(R.id.welcomeMssg);
-
         Typeface typeFace= Typeface.createFromAsset(getAssets(), "fonts/blood_font.ttf");
-        final String playersName = getIntent().getStringExtra("playersName");
         welcomeMssg.setTypeface(typeFace);
 
-
+        playerName = getIntent().getStringExtra("playerName");
 
         final ListView listView = (ListView) findViewById(R.id.listView);
-        final ArrayList<String> friends = new ArrayList<String>();
-        players.addValueEventListener(new ValueEventListener() {
+        final ArrayList<String> users = new ArrayList<String>();
+
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot player : dataSnapshot.getChildren()) {
-                    // Log.i("player", player.getKey());
-                    friends.add(player.getKey());
+                for (DataSnapshot user : dataSnapshot.getChildren()) {
+                    users.add(user.getKey());
                 }
+                // link between a set of data and the AdapterView that displays the data
                 ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this,
-                        android.R.layout.simple_list_item_1, friends);
+                        android.R.layout.simple_list_item_1, users);
                 listView.setAdapter(arrayAdapter);
             }
 
             @Override
-            public void onCancelled(FirebaseError firebaseError) {
+            public void onCancelled(DatabaseError databaseError) {
 
             }
         });
 
-            // link between a set of data and the AdapterView that displays the data
-            /*ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1,
-                    friends);
-            listView.setAdapter(arrayAdapter);*/
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Intent i = new Intent(getApplicationContext(), SecondActivity.class);
-                    i.putExtra("hidersName", friends.get(position));
-                    i.putExtra("playersName", playersName);
-                    startActivity(i);
-                }
-            });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent i = new Intent(getApplicationContext(), SecondActivity.class);
+                i.putExtra("findName", users.get(position));
+                i.putExtra("playerName", playerName);
+                startActivity(i);
+            }
+        });
 
-    }
-
-
-
-
-    public void changeActivity(View view) {
-        // description of an operation
-        Intent i = new Intent(getApplicationContext(), SecondActivity.class);
-        i.putExtra("developersName", "Roman Priscepov");
-        startActivity(i);
     }
 
 }
